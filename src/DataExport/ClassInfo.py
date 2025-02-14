@@ -38,7 +38,7 @@ def standardizing(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str) -> list[dict[str, str | int]]:
+def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str, sheet_name: str | int = 0) -> list[dict[str, str | int]]:
     """
     Lấy thông tin các lớp học
 
@@ -46,13 +46,14 @@ def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str) -> lis
         file_path (str): Đường dẫn đến file Thời khóa biểu
         class_ids (list[str]): Danh sách mã của các lớp học phần cần lấy thông tin
         header_name (str): Tên cột chứa Mã Lớp học phần
+        sheet_name (str | int, optional): Tên hoặc chỉ số của sheet chứa dữ liệu. Mặc định là 0.
 
     Returns:
         list[dict[str, str | int]]: Danh sách thông tin của các lớp
     """
     
-    # Đọc file và tạo DataFrame
-    df = pd.read_excel(file_path, sheet_name=0, header=None)
+    # Đọc file và tạo DataFrame, nhưng bỏ header đi vì không biết hàng nào chứa header
+    df = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
     
     # Tìm vị trí table mà chứa cột header_name
     header_row_index = None
