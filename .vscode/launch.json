@@ -9,9 +9,9 @@
             "name": "Python Debugger",
             "type": "debugpy",
             "request": "launch",
-            "program": "src/main.py",
+            "program": "main.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/src"
         }
     ]
 }

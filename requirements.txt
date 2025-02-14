@@ -1,3 +1,4 @@
 icalendar 
 pandas
 openpyxl
+pandas-datareader

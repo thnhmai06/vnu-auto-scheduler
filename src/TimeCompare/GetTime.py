@@ -1,6 +1,6 @@
-from . import TIME
-from datetime import time
 import re
+from datetime import time
+from . import TIME
 
 def get_time_period(period: str, start_header: str = "Bắt đầu", end_header: str = "Kết thúc") -> tuple[time, time]:
     """
