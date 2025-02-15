@@ -25,5 +25,4 @@ jobs:
       uses: astral-sh/ruff-action@v3.2.0
       with:
         src: "./src"
-        args: .
         github-token: ${{ secrets.GITHUB_TOKEN }}
