@@ -55,7 +55,7 @@ def create_event(data: dict, name_header: str, day_of_the_week_header: str, star
     if isinstance(loop, int):
         event.add('rrule', {'freq': 'weekly', 'count': loop})
     elif isinstance(loop, date):
-        event.add('rrule', {'freq': 'weekly', 'until': loop.isoformat()})
+        event.add('rrule', {'freq': 'weekly', 'until': loop})
     
     return event
 

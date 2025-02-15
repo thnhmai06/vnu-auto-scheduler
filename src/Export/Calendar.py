@@ -16,9 +16,6 @@ def ics(calendar: Calendar, location: str, file_name: str) -> str | Exception:
     data = calendar.to_ical()
     location = os.path.abspath(location)
     full_path = os.path.join(location, f"{file_name}.ics")
-    try:
-        with open(full_path, 'wb', encoding='utf-8') as file:
-            file.write(data)
-    except Exception as e:
-        return e
+    with open(full_path, 'wb') as file:
+        file.write(data)
     return full_path

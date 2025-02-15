@@ -14,9 +14,10 @@ if __name__ == "__main__":
     alarm_list: list[int] = [15, 30, 45]
     file_dang_ky_mon = "../test/ket-qua-dang-ky-mon-hoc.doc"
     header_dang_ky_mon = "Lớp môn học"
-    file_thoi_khoa_bieu = "../test/có dư thừa.xlsx"
+    file_thoi_khoa_bieu = "../test/không dư thừa.xlsx"
     header_thoi_khoa_bieu = "Mã LHP"
     start_date = date.today()
+    end_date = date(2025, 12, 31)
     
     # Lấy thông tin cột
     class_ids = get_ClassIds(
@@ -45,7 +46,7 @@ if __name__ == "__main__":
                 start_date=start_date, 
                 period_header="Tiết", 
                 location_header="Giảng đường",
-                loop=14
+                loop=end_date
             )
             event = EventScript.import_alarm(event, alarms)
             calendar = CalendarScript.import_event(calendar, event)

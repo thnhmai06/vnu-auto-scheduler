@@ -21,7 +21,7 @@ def standardizing(df: pd.DataFrame) -> pd.DataFrame:
     isna: ndarray = df.columns.isna()
 
     first_notna_index: int
-    first_isna_after_notna: int
+    first_isna_after_notna: int = None
 
     for index, value in enumerate(isna):
         if not value:
