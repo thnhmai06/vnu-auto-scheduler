@@ -16,16 +16,16 @@ def get_date_from_weekday(date_in_week: date, day_of_the_week: int) -> date:
     day_of_the_week_based_on_0 = day_of_the_week - 2 # Vì thứ 2 là 0, thứ 3 là 1, ..., thứ 7 là 5
     return date_in_week + timedelta(days=day_of_the_week_based_on_0 - date_in_week.weekday())
 
-def create_event(data: dict, title_header: str, day_of_the_week_header: str, start_date: date, 
+def create_event(data: dict, name_header: str, day_of_the_week_header: str, start_date: date, 
                  period_header: str, location_header: str, loop: int | date = int(1)) -> Event:
     """
     Tạo sự kiện lịch từ dữ liệu
 
     Parameters:
         data (dict): Dữ liệu để tạo sự kiện.
-        title_header (str): Header của tên sự kiện.
+        name_header (str): Header của tên sự kiện.
         day_of_the_week_header (str): Header Thứ trong tuần từ dữ liệu.
-        start_date (date): Ngày bắt đầu để tính toán.
+        start_date (date): Ngày bắt đầu tuần học đầu tiên.
         period_header (str): Header của khoảng thời gian.
         location_header (str): Header của vị trí.
         loop (int | date): Biến để điều khiển lặp lại sự kiện. (int: số lần lặp tính cả ngày ban đầu, date: ngày kết thúc lặp lại). Mặc định là 1
@@ -34,7 +34,7 @@ def create_event(data: dict, title_header: str, day_of_the_week_header: str, sta
         Event: Đối tượng sự kiện đã tạo.
     """
     # Lấy dữ liệu
-    summary: str = data[title_header]
+    summary: str = data[name_header]
     location: str = data[location_header]
     day_of_the_week: int = data[day_of_the_week_header]
     period = get_time_period(data[period_header])
@@ -53,23 +53,26 @@ def create_event(data: dict, title_header: str, day_of_the_week_header: str, sta
     event.add('location', location)
     event.add('description', description)
     if isinstance(loop, int):
-        event.add('rrule', f'FREQ=DAILY;COUNT={loop}')
+        event.add('rrule', {'freq': 'weekly', 'count': loop})
     elif isinstance(loop, date):
-        event.add('rrule', f'FREQ=DAILY;UNTIL={loop.isoformat()}')
+        event.add('rrule', {'freq': 'weekly', 'until': loop.isoformat()})
     
     return event
 
-def inport_alarm(event: Event, alarm_list: list[Alarm]) -> Event:
+def import_alarm(event: Event, alarms: Alarm | list[Alarm]) -> Event:
     """
     Thêm nhắc nhở vào sự kiện
 
     Parameters:
         event (Event): Sự kiện cần thêm nhắc nhở.
-        alarm_list (list[Alarm]): Danh sách nhắc nhở.
+        alarms (Alarm | list[Alarm]): Nhắc nhở.
 
     Returns:
         Event: Sự kiện đã thêm nhắc nhở.
     """
-    for alarm in alarm_list:
+
+    if isinstance(alarms, Alarm):
+        alarms = [alarms]
+    for alarm in alarms:
         event.add_component(alarm)
     return event

@@ -1,6 +1,13 @@
+from datetime import date
+from icalendar import Calendar
 from DataImport.ClassIDs import get_ClassIds
 from DataImport.ClassInfo import get_ClassInfo
-from TimeCompare import TIME
+from EventSchedule import (
+    Alarm as AlarmScript,
+    Event as EventScript,
+    Calendar as CalendarScript
+)
+from Export.Calendar import ics as ics_export
 
 if __name__ == "__main__":
     # Input
@@ -9,6 +16,7 @@ if __name__ == "__main__":
     header_dang_ky_mon = "Lớp môn học"
     file_thoi_khoa_bieu = "../test/có dư thừa.xlsx"
     header_thoi_khoa_bieu = "Mã LHP"
+    start_date = date.today()
     
     # Lấy thông tin cột
     class_ids = get_ClassIds(
@@ -18,11 +26,29 @@ if __name__ == "__main__":
     # print(class_ids)
 
     # Lấy thông tin các lớp học
-    class_info = get_ClassInfo(
+    classes_info = get_ClassInfo(
         file_path=file_thoi_khoa_bieu, 
         class_ids=class_ids, 
         header_name=header_thoi_khoa_bieu
     )
     # print(class_info)
 
-    print(2)
+    # Tạo lịch
+    calendar = Calendar()
+    alarms = AlarmScript.create_alarm(alarm_list)
+    for class_name, class_info in classes_info.items():
+        for lession in class_info:
+            event = EventScript.create_event(
+                data=lession, 
+                name_header="Học phần", 
+                day_of_the_week_header="Thứ", 
+                start_date=start_date, 
+                period_header="Tiết", 
+                location_header="Giảng đường",
+                loop=14
+            )
+            event = EventScript.import_alarm(event, alarms)
+            calendar = CalendarScript.import_event(calendar, event)
+
+    # Xuất lịch
+    ics_export(calendar, location="../test", file_name="calendar")

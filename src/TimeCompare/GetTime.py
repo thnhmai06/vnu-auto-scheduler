@@ -15,10 +15,13 @@ def get_time_period(period: str, start_header: str = "Bắt đầu", end_header:
         tuple[time, time]: Thời gian bắt đầu và kết thúc của tiết học
     """
     PATTERN = r"\d+(-\d+)?"
-
     match = re.search(PATTERN, period)
-    start_period = int(match.group()) - 1
-    end_period = start_period if "-" not in period else int(match.group().split('-')[-1]) - 1
+    period = match.group() # Dạng có thể là 01-2, 10-12, 12, 1-5
+
+    if "-" in period:
+        start_period, end_period = map(int, period.split("-"))
+    else:
+        start_period = end_period = int(period)
 
     start_time = TIME[start_period][start_header]
     end_time = TIME[end_period][end_header]
