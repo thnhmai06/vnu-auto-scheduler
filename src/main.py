@@ -1,5 +1,6 @@
-from DataExport.ClassIDs import get_ClassIds
-from DataExport.ClassInfo import get_ClassInfo
+from DataImport.ClassIDs import get_ClassIds
+from DataImport.ClassInfo import get_ClassInfo
+from TimeCompare import TIME
 
 if __name__ == "__main__":
     # Lấy thông tin cột
