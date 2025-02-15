@@ -6,7 +6,7 @@ def get_time_period(period: str, start_header: str = "Bắt đầu", end_header:
     """
     Lấy thời gian bắt đầu và kết thúc của một tiết học
 
-    Args:
+    Parameters:
         period (str): Độ dài tiết học (Từ tiết mấy đến tiết mấy)
         start_header (str, optional): Cột chứa thời gian bắt đầu. Mặc định là "Bắt đầu".
         end_header (str, optional): Cột chứa thời gian kết thúc. Mặc định là "Kết thúc".

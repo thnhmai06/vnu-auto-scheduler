@@ -1,4 +1,4 @@
-from icalendar import Event
+from icalendar import Event, Alarm
 from TimeCompare.GetTime import get_time_period
 from datetime import date, timedelta, datetime
 
@@ -6,21 +6,22 @@ def get_date_from_weekday(date_in_week: date, day_of_the_week: int) -> date:
     """
     Lấy ngày trong tuần từ ngày bắt đầu và thứ trong tuần
 
-    Args:
+    Parameters:
         date_in_week (date): Một ngày của tuần
-        day_of_the_week (int): Thứ trong tuần
+        day_of_the_week (int): Thứ trong tuần (2, 3, ..., 7, 8)
 
     Returns:
         date: Ngày tương ứng
     """
-    return date_in_week + timedelta(days=day_of_the_week - date_in_week.weekday())
+    day_of_the_week_based_on_0 = day_of_the_week - 2 # Vì thứ 2 là 0, thứ 3 là 1, ..., thứ 7 là 5
+    return date_in_week + timedelta(days=day_of_the_week_based_on_0 - date_in_week.weekday())
 
 def create_event(data: dict, title_header: str, day_of_the_week_header: str, start_date: date, 
                  period_header: str, location_header: str, loop: int | date = int(1)) -> Event:
     """
     Tạo sự kiện lịch từ dữ liệu
 
-    Args:
+    Parameters:
         data (dict): Dữ liệu để tạo sự kiện.
         title_header (str): Header của tên sự kiện.
         day_of_the_week_header (str): Header Thứ trong tuần từ dữ liệu.
@@ -30,7 +31,7 @@ def create_event(data: dict, title_header: str, day_of_the_week_header: str, sta
         loop (int | date): Biến để điều khiển lặp lại sự kiện. (int: số lần lặp tính cả ngày ban đầu, date: ngày kết thúc lặp lại). Mặc định là 1
 
     Returns:
-        icalendar.Event: Đối tượng sự kiện đã tạo.
+        Event: Đối tượng sự kiện đã tạo.
     """
     # Lấy dữ liệu
     summary: str = data[title_header]
@@ -56,4 +57,19 @@ def create_event(data: dict, title_header: str, day_of_the_week_header: str, sta
     elif isinstance(loop, date):
         event.add('rrule', f'FREQ=DAILY;UNTIL={loop.isoformat()}')
     
+    return event
+
+def inport_alarm(event: Event, alarm_list: list[Alarm]) -> Event:
+    """
+    Thêm nhắc nhở vào sự kiện
+
+    Parameters:
+        event (Event): Sự kiện cần thêm nhắc nhở.
+        alarm_list (list[Alarm]): Danh sách nhắc nhở.
+
+    Returns:
+        Event: Sự kiện đã thêm nhắc nhở.
+    """
+    for alarm in alarm_list:
+        event.add_component(alarm)
     return event

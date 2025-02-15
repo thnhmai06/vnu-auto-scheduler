@@ -5,7 +5,7 @@ def get_ClassIds(file_path: str, header_name: str) -> list[str]:
     """
     Lấy tất cả dữ liệu ở trong cột có tên header_name
 
-    Args:
+    Parameters:
         file_path (str): Đường dẫn đến file Đăng ký học
         header_name (str): Tên cột cần lấy dữ liệu
 

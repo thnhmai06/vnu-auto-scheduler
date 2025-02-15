@@ -1,10 +1,10 @@
 from icalendar import Calendar, Event
 
-def import_to_calendar(calendar: Calendar, event_list: list[Event]) -> Calendar:
+def import_event(calendar: Calendar, event_list: list[Event]) -> Calendar:
     """
     Nhập danh sách sự kiện vào lịch
 
-    Args:
+    Parameters:
         calendar (Calendar): Lịch cần nhập sự kiện
         event_list (list[Event]): Danh sách sự kiện cần nhập
 

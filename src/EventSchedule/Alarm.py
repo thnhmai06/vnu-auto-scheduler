@@ -1,19 +1,22 @@
 from datetime import timedelta
 from icalendar import Alarm
 
-def create_alarm(before_list: list[int]) -> Alarm:
+def create_alarm(before_list: list[int]) -> list[Alarm]:
     """
     Tạo nhắc nhở cho sự kiện
 
-    Args:
+    Parameters:
         before_list (list[int]): Danh sách thời gian trước khi nhắc nhở
 
     Returns:
-        icalendar.Alarm: Đối tượng nhắc nhở đã tạo
+        list[Alarm]: Danh sách đối tượng nhắc nhở đã tạo
     """
-    alarm = Alarm()
-    alarm.add('ACTION', 'DISPLAY')
+
+    alarm_list: list[Alarm] = []
     for minutes in before_list:
+        alarm = Alarm()
+        alarm.add('ACTION', 'DISPLAY')
         alarm.add('TRIGGER', timedelta(minutes=-minutes))
-    # alarm.add('DESCRIPTION', 'Reminder')
-    return alarm
+        alarm_list.append(alarm)
+
+    return alarm_list

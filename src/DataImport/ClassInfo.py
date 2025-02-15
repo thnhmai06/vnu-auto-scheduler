@@ -11,7 +11,7 @@ def standardizing(df: pd.DataFrame) -> pd.DataFrame:
     - Khi đi từ đầu đến cuối mà phát hiện header cột là nan (tức là đã vượt quá phạm vi dữ liệu), 
     ta sẽ cắt bỏ các cột từ đó trở về sau, bao gồm cả các dữ liệu sau đó (not nan).
 
-    Args:
+    Parameters:
         df (pd.DataFrame): DataFrame cần chuẩn hóa
 
     Returns:
@@ -38,20 +38,19 @@ def standardizing(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str, sheet_name: str | int = 0) -> list[dict[str, str | int]]:
+def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str, sheet_name: str | int = 0) -> dict[str, list[dict[str, str | int]]]:
     """
     Lấy thông tin các lớp học
 
-    Args:
+    Parameters:
         file_path (str): Đường dẫn đến file Thời khóa biểu
         class_ids (list[str]): Danh sách mã của các lớp học phần cần lấy thông tin
         header_name (str): Tên cột chứa Mã Lớp học phần
         sheet_name (str | int, optional): Tên hoặc chỉ số của sheet chứa dữ liệu. Mặc định là 0.
 
     Returns:
-        list[dict[str, str | int]]: Danh sách thông tin của các lớp
+        dict[str, list[dict[str, str | int]]]: Danh sách các lớp đã được gộp lại theo mã lớp học phần
     """
-    
     # Đọc file và tạo DataFrame, nhưng bỏ header đi vì không biết hàng nào chứa header
     df = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
     
@@ -69,11 +68,11 @@ def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str, sheet_
     df.columns = df.iloc[header_row_index]
     df = df[header_row_index + 1:]
     
-    # Lọc các lớp học theo class_ids
-    df = df[df[header_name].isin(class_ids)]
-    
     # Chuẩn hóa DataFrame
     df = standardizing(df)
+
+    # Lọc các lớp học theo class_ids
+    df = df[df[header_name].isin(class_ids)]
     
     # Đảm bảo các cột của DataFrame là duy nhất (thêm hậu tố cho cột bị trùng lặp)
     df.columns = pd.Series(df.columns).apply(
@@ -82,6 +81,14 @@ def get_ClassInfo(file_path: str, class_ids: list[str], header_name: str, sheet_
     )
     
     # Chuyển đổi DataFrame thành list dict
-    class_info = df.to_dict(orient="records")
+    class_info: list[dict[str, str | int]] = df.to_dict(orient="records")
 
-    return class_info
+    # Gộp các phần tử có cùng mã lớp học phần thành một list, với key là mã lớp học phần
+    class_info_merged: dict[str, list[dict[str, str | int]]] = {}
+    for class_ in class_info:
+        class_id = class_[header_name]
+        if class_id not in class_info_merged:
+            class_info_merged[class_id] = []
+        class_info_merged[class_id].append(class_)
+
+    return class_info_merged
