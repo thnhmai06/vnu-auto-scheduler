@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from datetime import time
+from datetime import time, datetime
 
 class Subject:
     """
@@ -81,17 +81,18 @@ class PeriodReference(dict[int, Period]):
         Args:
             file_path (str): Đường dẫn tới file Excel chứa dữ liệu tham chiếu.
         """
-        df = pd.read_excel(file_path, sheet_name=0, usecols="A:C")
+        df = pd.read_csv(file_path)
         
-        PERIOD_NUM_HEADER = "Tiết"
-        START_HEADER = "Bắt đầu"
-        END_HEADER = "Kết thúc"
+        NUM_HEADER = "num"
+        START_HEADER = "start"
+        END_HEADER = "end"
+        TIME_FORMAT = "%H:%M:%S"
     
         for index, row in df.iterrows():
-            period_number = row[PERIOD_NUM_HEADER]
-            start_time = row[START_HEADER]
-            end_time = row[END_HEADER]
-            self[period_number] = Period(start=start_time, end=end_time)
+            num = int(row[NUM_HEADER])
+            start_time = datetime.strptime(row[START_HEADER], TIME_FORMAT).time()
+            end_time = datetime.strptime(row[END_HEADER], TIME_FORMAT).time()
+            self[num] = Period(start=start_time, end=end_time)
 
     def reference(self, period: str):
         """
