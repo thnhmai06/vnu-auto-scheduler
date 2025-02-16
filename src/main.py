@@ -1,55 +1,24 @@
-from datetime import date
-from icalendar import Calendar
-from DataImport.ClassIDs import get_ClassIds
-from DataImport.ClassInfo import get_ClassInfo
-from EventSchedule import (
-    Alarm as AlarmScript,
-    Event as EventScript,
-    Calendar as CalendarScript
-)
-from Export.Calendar import ics as ics_export
+from importlib import import_module
+from flask import Flask, jsonify, request
 
-if __name__ == "__main__":
-    # Input
-    alarm_list: list[int] = [15, 30, 45]
-    file_dang_ky_mon = "../test/ket-qua-dang-ky-mon-hoc.doc"
-    header_dang_ky_mon = "Lớp môn học"
-    file_thoi_khoa_bieu = "../test/không dư thừa.xlsx"
-    header_thoi_khoa_bieu = "Mã LHP"
-    start_date = date.today()
-    end_date = date(2025, 12, 31)
-    
-    # Lấy thông tin cột
-    class_ids = get_ClassIds(
-        file_path=file_dang_ky_mon, 
-        header_name=header_dang_ky_mon
-    )
-    # print(class_ids)
+app = Flask(__name__)
 
-    # Lấy thông tin các lớp học
-    classes_info = get_ClassInfo(
-        file_path=file_thoi_khoa_bieu, 
-        class_ids=class_ids, 
-        header_name=header_thoi_khoa_bieu
-    )
-    # print(class_info)
+@app.route('/api/v<version>/<string:name>', methods=['GET', 'POST'])
+def handle_request(version, name):
+    try:
+        # Xác định handler cho API
+        module = import_module(f'API.v{version}.{name}')
+        
+        # Lấy tham số từ request
+        args = request.args
+        argv = request.json if request.method == 'POST' else {}
 
-    # Tạo lịch
-    calendar = Calendar()
-    alarms = AlarmScript.create_alarm(alarm_list)
-    for class_name, class_info in classes_info.items():
-        for lession in class_info:
-            event = EventScript.create_event(
-                data=lession, 
-                name_header="Học phần", 
-                day_of_the_week_header="Thứ", 
-                start_date=start_date, 
-                period_header="Tiết", 
-                location_header="Giảng đường",
-                loop=end_date
-            )
-            event = EventScript.import_alarm(event, alarms)
-            calendar = CalendarScript.import_event(calendar, event)
+        # Gọi hàm xử lý request
+        return module.handle_request(request, args, argv)
+    except ModuleNotFoundError:
+        return jsonify({'error': 'API not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    # Xuất lịch
-    ics_export(calendar, location="../test", file_name="calendar")
+if __name__ == '__main__':
+    app.run(debug=True)
