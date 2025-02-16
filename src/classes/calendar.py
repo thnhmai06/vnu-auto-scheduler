@@ -4,7 +4,16 @@ from datetime import timedelta, date, datetime
 from icalendar import Event, Alarm, Calendar as ICalendar
 
 class Alarms(list[Alarm]):
+    """
+    Lớp đại diện cho danh sách các lời nhắc (alarms).
+    """
     def add_alarm(self, remind_before: int):
+        """
+        Thêm một lời nhắc vào danh sách.
+
+        Args:
+            remind_before (int): Số phút trước khi sự kiện diễn ra để nhắc nhở.
+        """
         alarm = Alarm()
         alarm.add('ACTION', 'DISPLAY')
         alarm.add('TRIGGER', timedelta(minutes=-remind_before))
@@ -12,6 +21,10 @@ class Alarms(list[Alarm]):
         return self
     
     def __new__(cls, remind_before: int | list[int]):
+        """
+        Args:
+            remind_before (int | list[int]): Số phút trước khi sự kiện diễn ra để nhắc nhở.
+        """
         self = object().__new__(cls)
         if not isinstance(remind_before, list):
             remind_before = [remind_before]
@@ -43,7 +56,16 @@ def _get_date_from_weekday(date_in_week: date, weekday: int) -> date:
     return week_startday + timedelta(days=weekday)
 
 class Events(list[Event]):
+    """
+    Lớp đại diện cho danh sách các sự kiện (events).
+    """
     def __new__(cls, class_: FulfilledClass, start_first_week: date, repeat: int | date = 1):
+        """
+        Args:
+            class_ (FulfilledClass): Lớp học đầy đủ thông tin.
+            start_first_week (date): Ngày bắt đầu của tuần học đầu tiên.
+            repeat (int | date, optional): Số lần lặp lại (tính cả ngày đầu tiên) hoặc ngày kết thúc lặp lại.
+        """
         self = object().__new__(cls)
         for lesson in class_.lessons:
             weekday = lesson.weekday
@@ -72,25 +94,55 @@ class Events(list[Event]):
         return self
     
     def add_alarms(self, alarms: Alarms | list[Alarm]):
+        """
+        Thêm các lời nhắc vào các sự kiện.
+
+        Args:
+            alarms (Alarms | list[Alarm]): Danh sách các lời nhắc.
+        """
         for event in self:
             for alarm in alarms:
                 event.add_component(alarm)
         return self
     
 class Calendar(ICalendar):
-    def __new__(cls, *args):
-        self = super().__new__(cls, *args)
-        return self
-
+    """
+    Lớp đại diện cho lịch (calendar).
+    """
     def add_events(self, events: Events | list[Event]):
+        """
+        Thêm các sự kiện vào lịch.
+
+        Args:
+            events (Events | list[Event]): Danh sách các sự kiện.
+        """
         for event in events:
             self.add_component(event)
         return self
     
-    def export_ics(self, location: str, filename: str):
+    def export_ical_as_str(self) -> str:
+        """
+        Xuất lịch ra dưới dạng dữ liệu ical.
+
+        Returns:
+            str: Chuỗi dữ liệu ical .
+        """
+        return self.to_ical().decode('utf-8')
+
+    def export_ical(self, location: str, filename: str):
+        """
+        Xuất lịch ra file .ics.
+
+        Args:
+            location (str): Đường dẫn tới thư mục lưu file.
+            filename (str): Tên file.
+
+        Returns:
+            str: Đường dẫn tới file .ics đã xuất.
+        """
         data = self.to_ical()
         location = os.path.abspath(location)
         path = os.path.join(location, f"{filename}.ics")
         with open(path, 'wb') as f:
             f.write(data)
-        return path   
+        return path

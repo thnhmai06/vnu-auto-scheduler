@@ -1,6 +1,5 @@
 import pandas as pd
 from bs4 import BeautifulSoup
-from numpy import ndarray
 from bs4.element import Tag, ResultSet
 from classes.subject import SimplifiedClass, FulfilledClass
 
@@ -87,15 +86,15 @@ def _standardizing_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame đã được chuẩn hóa
     """
     
-    isna: ndarray = df.columns.isna()
+    isna = df.columns.isna()
 
     first_notna_index: int
-    first_isna_after_notna: int = None
-
     for index, value in enumerate(isna):
         if not value:
             first_notna_index = index
             break
+        
+    first_isna_after_notna: int = None
     for index in range(first_notna_index, len(isna)):
         if isna[index]:
             first_isna_after_notna = index

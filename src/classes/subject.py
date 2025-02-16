@@ -204,9 +204,7 @@ class FulfilledClass(SimplifiedClass):
 
     def __new__(cls, id: str = None, subject: Subject = None, teacher: str = None, 
                 lessons: list[Lesson] | Lesson = []):
-        """
-        Khởi tạo một đối tượng FulfilledClass mới.
-        
+        """   
         Args:
             id (str, optional): Mã lớp học.
             subject (Subject, optional): Môn học.
