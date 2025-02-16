@@ -1,13 +1,12 @@
 from datetime import date
 from icalendar import Calendar
-from DataImport.ClassIDs import get_ClassIds
-from DataImport.ClassInfo import get_ClassInfo
-from EventSchedule import (
+from utils.import_ import get_class_list, getFulfilledClass
+from utils.schedule import (
     Alarm as AlarmScript,
     Event as EventScript,
     Calendar as CalendarScript
 )
-from Export.Calendar import ics as ics_export
+from utils.export import ics as export_ics
 
 if __name__ == "__main__":
     # Input
@@ -20,14 +19,14 @@ if __name__ == "__main__":
     end_date = date(2025, 12, 31)
     
     # Lấy thông tin cột
-    class_ids = get_ClassIds(
+    class_ids = get_class_list(
         file_path=file_dang_ky_mon, 
-        header_name=header_dang_ky_mon
+        id_header=header_dang_ky_mon
     )
     # print(class_ids)
 
     # Lấy thông tin các lớp học
-    classes_info = get_ClassInfo(
+    classes_info = getFulfilledClass(
         file_path=file_thoi_khoa_bieu, 
         class_ids=class_ids, 
         header_name=header_thoi_khoa_bieu
@@ -52,4 +51,4 @@ if __name__ == "__main__":
             calendar = CalendarScript.import_event(calendar, event)
 
     # Xuất lịch
-    ics_export(calendar, location="../test", file_name="calendar")
+    export_ics(calendar, location="../test", file_name="calendar")

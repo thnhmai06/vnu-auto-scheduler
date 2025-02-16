@@ -1,4 +1,4 @@
-from importlib import import_module
+import importlib
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -7,7 +7,7 @@ app = Flask(__name__)
 def handle_request(version, name):
     try:
         # Xác định handler cho API
-        module = import_module(f'API.v{version}.{name}')
+        module = importlib.import_module(f'API.v{version}.{name}')
         
         # Lấy tham số từ request
         args = request.args
