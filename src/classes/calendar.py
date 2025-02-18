@@ -1,5 +1,5 @@
 import os
-from subject import FulfilledClass
+from subject import DetailedClass
 from datetime import timedelta, date, datetime
 from icalendar import Event, Alarm, Calendar as ICalendar
 
@@ -59,10 +59,10 @@ class Events(list[Event]):
     """
     Lớp đại diện cho danh sách các sự kiện (events).
     """
-    def __new__(cls, class_: FulfilledClass, start_first_week: date, repeat: int | date = 1):
+    def __new__(cls, class_: DetailedClass, start_first_week: date, repeat: int | date = 1):
         """
         Args:
-            class_ (FulfilledClass): Lớp học đầy đủ thông tin.
+            class_ (DetailedClass): Lớp học đầy đủ thông tin.
             start_first_week (date): Ngày bắt đầu của tuần học đầu tiên.
             repeat (int | date, optional): Số lần lặp lại (tính cả ngày đầu tiên) hoặc ngày kết thúc lặp lại.
         """
@@ -74,13 +74,13 @@ class Events(list[Event]):
             event_end_datetime = datetime.combine(event_date, lesson.period.end)
             description = f"\
                 Mã LHP: {class_.id}\n\
-                Giảng viên: {class_.teacher}\
+                Giảng dạy: {class_.teacher}\
+                Giảng đường: {lesson.location}\n\
                 Nhóm: {lesson.group}\n\
-                Số tín chỉ: {class_.subject.credit}\n\
             "
 
             event = Event()
-            event.add('summary', lesson.subject.name)
+            event.add('summary', class_.subject.name)
             event.add('dtstart', event_start_datetime)
             event.add('dtend', event_end_datetime)
             event.add('location', lesson.location)
