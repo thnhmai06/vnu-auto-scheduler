@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from flask import jsonify, Request
 from classes.calendar import Calendar, Events, Alarms
 from utils.getClass import get_simplified_classes, get_detailed_classes
+import traceback
+import logging
 
 def handle_request(request: Request, args: dict, argv: dict):
     """
@@ -141,6 +143,7 @@ def handle_request(request: Request, args: dict, argv: dict):
         }
 
     except Exception as e:
+        logging.error(traceback.format_exc())
         return jsonify({
-            'error': str(e)
+            'error': 'An internal error has occurred!'
         }), 500 
