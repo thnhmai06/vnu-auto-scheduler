@@ -20,33 +20,39 @@ def get_simplified_classes(file_path: str, id_header: str) -> list[SimpleClass]:
     with open(file_path, "r", encoding="utf-8") as file:
         html = file.read()
     soup = BeautifulSoup(html, 'html.parser')
-
+    
     tables: ResultSet[Tag] = soup.find_all('table')
-    table = next((tbl for tbl in tables if tbl.find('th', string=id_header)), None)
+    table: Tag | None = next((tbl for tbl in tables if tbl.find('th', string=id_header)), None)
 
     if not table:
         return []
 
     rows: ResultSet[Tag] = table.find_all('tr')
-    headers = [header_tag.get_text(strip=True) for header_tag in rows[0].find_all('th')]
+    headers: list[str] = [header_tag.get_text(strip=True) for header_tag in rows[0].find_all('th')]
 
-    header_index = next((index for index, header in enumerate(headers) if header == id_header), None)
-    if header_index is None:
-        return []
+    # Sử dụng dict để map header với attribute
+    header_mapping = {
+        "Mã môn học": "subject.id",
+        "Môn học": "subject.name", 
+        "Lớp môn học": "id"
+    }
 
-    class_list = []
+    class_list: list[SimpleClass] = []
     for row in rows[1:]:
         class_ = SimpleClass()
         for index, cell in enumerate(row.find_all('td')):
             assert isinstance(cell, Tag)
             cell_text = cell.get_text(strip=True)
-            match headers[index]:
-                case "Mã môn học":
-                    class_.subject.id = cell_text
-                case "Môn học":
-                    class_.subject.name = cell_text
-                case "Lớp môn học":
-                    class_.id = cell_text
+            header = headers[index]
+            
+            if header in header_mapping:
+                attr = header_mapping[header]
+                if "." in attr:
+                    obj_name, attr_name = attr.split(".")
+                    setattr(getattr(class_, obj_name), attr_name, cell_text)
+                else:
+                    setattr(class_, attr, cell_text)
+                    
         class_list.append(class_)
     return class_list
 

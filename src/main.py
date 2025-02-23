@@ -18,6 +18,8 @@ def handle_request(version, name):
     except ModuleNotFoundError:
         return jsonify({'error': 'API not found'}), 404
     except Exception as e:
+        # Log lỗi để debug
+        app.logger.error(f"Error processing request: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

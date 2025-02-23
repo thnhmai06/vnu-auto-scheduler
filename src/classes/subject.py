@@ -151,11 +151,14 @@ class DetailedClass(SimpleClass):
     def __repr__(self):
         return f"{self.id} ({len(self.lessons)})" if len(self.lessons) > 0 else super().__repr__()
     
-    def add_lesson(self, lesson: Lesson):
+    def add_lesson(self, lesson: Lesson) -> None:
         """
         Thêm một buổi học vào danh sách các buổi học.
         
         Args:
             lesson (Lesson): Buổi học cần thêm.
+            
+        Returns:
+            None
         """
         self.lessons.append(lesson)
