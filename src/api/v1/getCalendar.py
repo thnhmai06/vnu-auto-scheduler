@@ -142,7 +142,7 @@ def handle_request(request: Request, args: dict, argv: dict):
             'Content-Disposition': 'attachment; filename=calendar.ics'
         }
 
-    except Exception as e:
+    except Exception:
         logging.error(traceback.format_exc())
         return jsonify({
             'error': 'An internal error has occurred!'
