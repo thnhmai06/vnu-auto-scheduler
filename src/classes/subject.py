@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from datetime import time, datetime
+from datetime import time, datetime, date, timedelta
 from dataclasses import dataclass, field
 
 @dataclass
@@ -30,14 +30,22 @@ class Period:
     def __repr__(self):
         return f"{self.start.strftime('%H:%M')} -> {self.end.strftime('%H:%M')}" if self.start else super().__repr__()
 
-    def delta(self):
+    def delta(self) -> timedelta:
         """
         Tính toán khoảng thời gian sẽ học.
         
         Returns:
             timedelta: Khoảng thời gian giữa thời gian bắt đầu và kết thúc.
+        
+        Raises:
+            ValueError: Nếu start hoặc end là None
         """
-        return self.end - self.start
+        if not (self.start and self.end):
+            raise ValueError("start and end time must not be None")
+        
+        start_dt = datetime.combine(date.today(), self.start)
+        end_dt = datetime.combine(date.today(), self.end)
+        return end_dt - start_dt
 
 class Timetable(dict[int, Period]):
     """

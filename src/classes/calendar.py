@@ -1,5 +1,5 @@
 import os
-from subject import DetailedClass
+from subject import DetailedClass, Lesson
 from datetime import timedelta, date, datetime
 from icalendar import Event, Alarm, Calendar as ICalendar
 
@@ -36,38 +36,48 @@ def _get_date_from_weekday(date_in_week: date, weekday: int) -> date:
     """
     Trả về ngày của tuần chứa date_in_week mà có thứ là weekday.
 
-    Parameters:
+    Args:
         date_in_week (date): Một ngày của tuần đó
         weekday (int): Thứ của ngày đó ở dạng 0-based (0: Thứ 2, 1: Thứ 3, ..., 6: Chủ nhật)
 
     Returns:
         date: Ngày tương ứng
 
-    Examples:
-        - Lấy ngày Thứ Hai của tuần chứa ngày 16/2/2025
-        >>> _get_date_from_weekday(date(2025, 2, 16), 0)
-        (2025, 2, 16)
+    Raises:
+        ValueError: Nếu weekday không nằm trong khoảng [0, 6]
 
-        - Lấy ngày Chủ Nhật của tuần chứa ngày 16/2/2025
-        >>> _get_date_from_weekday(date(2025, 2, 16), 6)
-        (2025, 2, 16)
+    Examples:
+        >>> from datetime import date
+        >>> _get_date_from_weekday(date(2024, 2, 19), 0)  # Thứ 2
+        datetime.date(2024, 2, 19)
+        >>> _get_date_from_weekday(date(2024, 2, 19), 6)  # Chủ nhật
+        datetime.date(2024, 2, 25)
+        >>> _get_date_from_weekday(date(2024, 2, 19), 7)  # Invalid weekday
+        Traceback (most recent call last):
+            ...
+        ValueError: weekday must be in range [0, 6]
     """
-    week_startday = date_in_week - timedelta(days=date_in_week.weekday())
-    return week_startday + timedelta(days=weekday)
+    if not 0 <= weekday <= 6:
+        raise ValueError("weekday must be in range [0, 6]")
+        
+    current_weekday = date_in_week.weekday()
+    days_diff = weekday - current_weekday
+    return date_in_week + timedelta(days=days_diff)
 
 class Events(list[Event]):
     """
     Lớp đại diện cho danh sách các sự kiện (events).
     """
-    def __new__(cls, class_: DetailedClass, start_first_week: date, repeat: int | date = 1):
+    def __new__(cls, class_: DetailedClass, lessons: list[Lesson], start_first_week: date, repeat: int | date = 1):
         """
         Args:
-            class_ (DetailedClass): Lớp học đầy đủ thông tin.
-            start_first_week (date): Ngày bắt đầu của tuần học đầu tiên.
-            repeat (int | date, optional): Số lần lặp lại (tính cả ngày đầu tiên) hoặc ngày kết thúc lặp lại.
+            class_ (DetailedClass): Lớp học đầy đủ thông tin
+            lessons (list[Lesson]): Danh sách các tiết học cần tạo event
+            start_first_week (date): Ngày bắt đầu của tuần học đầu tiên
+            repeat (int | date, optional): Số lần lặp lại hoặc ngày kết thúc
         """
         self = object().__new__(cls)
-        for lesson in class_.lessons:
+        for lesson in lessons:
             weekday = lesson.weekday
             event_date = _get_date_from_weekday(start_first_week, weekday)
             event_start_datetime = datetime.combine(event_date, lesson.period.start)

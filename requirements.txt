@@ -2,3 +2,4 @@ icalendar
 pandas
 openpyxl
 flask
+colorama>=0.4.6

@@ -80,53 +80,95 @@ def _standardize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         df = df.iloc[:, :first_isna_after_notna]
     return df
 
+def _read_excel_file(file_path: str) -> pd.DataFrame:
+    """
+    Đọc file Excel và xử lý lỗi.
+    
+    Args:
+        file_path (str): Đường dẫn đến file Excel
+        
+    Returns:
+        pd.DataFrame: DataFrame từ file Excel
+        
+    Raises:
+        FileNotFoundError: Nếu không tìm thấy file
+        ValueError: Nếu file không phải định dạng Excel
+    """
+    try:
+        return pd.read_excel(file_path, header=None)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Không tìm thấy file: {file_path}")
+    except Exception as e:
+        raise ValueError(f"Lỗi khi đọc file Excel: {str(e)}")
+
+def _find_header_row(df: pd.DataFrame, id_header: str) -> int:
+    """
+    Tìm vị trí dòng chứa header.
+    
+    Args:
+        df (pd.DataFrame): DataFrame cần tìm
+        id_header (str): Tên cột cần tìm
+        
+    Returns:
+        int: Index của dòng chứa header
+        
+    Raises:
+        ValueError: Nếu không tìm thấy header
+    """
+    header_row_index = next(
+        (row_index for row_index, row in df.iterrows() if id_header in row.values), 
+        None
+    )
+    if header_row_index is None:
+        raise ValueError(f"Không tìm thấy cột '{id_header}' trong file")
+    return header_row_index
+
 def get_detailed_classes(file_path: str, id_list: list[str], id_header: str) -> list[DetailedClass]:
     """
-    Lấy thông tin chi tiết các lớp học phần
+    Lấy thông tin chi tiết các lớp học phần.
 
-    Parameters:
+    Args:
         file_path (str): Đường dẫn đến file Thời khóa biểu
         id_list (list[str]): Danh sách mã của các lớp học phần cần lấy thông tin
         id_header (str): Tên cột chứa Mã Lớp học phần
         
     Returns:
         list[DetailedClass]: Danh sách chi tiết các lớp học phần
+        
+    Raises:
+        FileNotFoundError: Nếu không tìm thấy file
+        ValueError: Nếu dữ liệu không hợp lệ
     """
-    df = pd.read_excel(file_path, header=None)
+    df = _read_excel_file(file_path)
+    header_row_index = _find_header_row(df, id_header)
     
-    header_row_index = next((row_index for row_index, row in df.iterrows() if id_header in row.values), None)
-    if header_row_index is None:
-        return []
-
     df.columns = df.iloc[header_row_index]
     df = df.iloc[header_row_index + 1:].reset_index(drop=True)
     df = _standardize_dataframe(df)
     df = df[df[id_header].isin(id_list)]
+    
     if df.empty:
         return []
 
     classes: dict[str, DetailedClass] = {}
-    data: list[dict[str, str]] = df.to_dict(orient="records")
-    for lesson in data:
-        class_id = lesson[id_header]
-
+    for _, row in df.iterrows():
+        class_id = row[id_header]
         if class_id not in classes:
-            class_ = DetailedClass(
+            classes[class_id] = DetailedClass(
                 id=class_id,
                 subject=Subject(
-                    id=lesson["Mã học phần"],
-                    name=lesson["Học phần"]
+                    id=row["Mã học phần"],
+                    name=row["Học phần"]
                 ),
-                teacher=lesson["Giảng viên"]
+                teacher=row["Giảng viên"]
             )
-            classes[class_id] = class_
-
+        
         classes[class_id].add_lesson(
             Lesson(
-                weekday=lesson["Thứ"],
-                location=lesson["Giảng đường"],
-                group=lesson["Nhóm"],
-                period=PERIOD_REFERENCE.reference(lesson["Tiết"])
+                weekday=row["Thứ"],
+                location=row["Giảng đường"],
+                group=row["Nhóm"],
+                period=PERIOD_REFERENCE.reference(row["Tiết"])
             )
         )
     

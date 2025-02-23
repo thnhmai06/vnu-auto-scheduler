@@ -1,26 +1,18 @@
-import importlib
-from flask import Flask, jsonify, request
+from flask import Flask
+from config.logging import setup_logging
+from middleware.error_handler import register_error_handlers
+from routes.api import register_api_routes
 
 app = Flask(__name__)
+setup_logging(app)  # Sử dụng cấu hình logging từ config
+logger = app.logger
 
-@app.route('/api/v<version>/<string:name>', methods=['GET', 'POST'])
-def handle_request(version, name):
-    try:
-        # Xác định handler cho API
-        module = importlib.import_module(f'API.v{version}.{name}')
-        
-        # Lấy tham số từ request
-        args = request.args
-        argv = request.json if request.method == 'POST' else {}
+# Đăng ký các routes
+register_api_routes(app)
 
-        # Gọi hàm xử lý request
-        return module.handle_request(request, args, argv)
-    except ModuleNotFoundError:
-        return jsonify({'error': 'API not found'}), 404
-    except Exception as e:
-        # Log lỗi để debug
-        app.logger.error(f"Error processing request: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+# Đăng ký error handlers
+register_error_handlers(app)
 
 if __name__ == '__main__':
+    logger.info("Starting server...")
     app.run(debug=True)
