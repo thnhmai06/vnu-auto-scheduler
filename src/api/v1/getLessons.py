@@ -90,4 +90,4 @@ def handle_request(request: Request, args: dict, argv: dict):
         
     except Exception as e:
         app.logger.error(f"Error getting lessons info: {str(e)}")
-        return jsonify({'error': str(e)}), 500 
+        return jsonify({'error': 'An internal error has occurred!'}), 500
