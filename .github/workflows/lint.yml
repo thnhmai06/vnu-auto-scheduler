@@ -23,5 +23,5 @@ jobs:
     - name: Run Linter
       uses: astral-sh/ruff-action@v3.2.0
       with:
-        src: "./src"
+        src: "./backend/src"
         github-token: ${{ secrets.GITHUB_TOKEN }}
