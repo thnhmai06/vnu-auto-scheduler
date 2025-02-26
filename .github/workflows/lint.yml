@@ -3,7 +3,7 @@ name: Linter
 on: [push, pull_request]
 
 jobs:
-  backend-lint:
+  python-lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r ./backend/requirements.txt
 
-    - name: Run Backend Linter
+    - name: Run Python Linter
       uses: astral-sh/ruff-action@v3.2.0
       with:
         src: "./backend/src"
